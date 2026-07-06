@@ -80,7 +80,6 @@ Whether you want to understand chat activity, user engagement, emoji usage, time
 
 # 📸 Screenshots
 
-> Replace these with your own screenshots.
 
 | Dashboard | User Analysis |
 |------------|---------------|
