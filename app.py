@@ -1317,11 +1317,11 @@ elif 'Timeline' in menu_selection:
         
         if st.session_state.analysis_generated and st.session_state.df is not None:
             df_day = helper.day_activity(st.session_state.df,st.session_state.selected_user)
-            fig_day = px.bar(df_day, x='day_name', y='messages')
+            fig_day = px.bar(df_day, x='day_name', y='messages',labels={'day_name':'Days','messages':'Number of Message'})
             fig_day.update_traces(marker_color="#09E6CC")
             fig_day.update_layout( bargap=0.45, margin=dict(l=0, r=0, t=5, b=0), height=400,
                               xaxis=dict(showgrid=False, color="#E9EDEF"), 
-                              yaxis=dict(showgrid=True, color="#F9FBFC"))
+                              yaxis=dict(showgrid=False, color="#F9FBFC"))
             st.plotly_chart(fig_day, use_container_width=True, config={'displayModeBar': False})
         else:
             st.markdown('<div class="chart-placeholder-content" style="height:250px; background: #FAFAFA; border: 1px dashed #E9EDEF; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #8696A0; font-style: italic;">Awaiting file upload...</div>', unsafe_allow_html=True)
@@ -1342,16 +1342,14 @@ elif 'Timeline' in menu_selection:
         if st.session_state.analysis_generated and st.session_state.df is not None:
 
             df_hour = helper.hour_activity(st.session_state.df,st.session_state.selected_user)            
-            fig_hour_bar = px.bar(df_hour, x='hour', y='messages')
+            fig_hour_bar = px.bar(df_hour, x='hour', y='messages',labels={'hour':'Hours','messages':'Number of Message'})
             fig_hour_bar.update_traces(
-              marker_color="#B7FC08", 
-              marker_line_width=0,
-              hovertemplate="<b>%{x}</b><br>Messages: %{y}<extra></extra>"
+              marker_color="#B7FC08"
             )
             fig_hour_bar.update_layout(
-              margin=dict(l=0, r=0, t=10, b=0), height=400, bargap=0.4,
-              xaxis=dict(showgrid=False, color='#667781', title=None),
-              yaxis=dict(showgrid=False, color='#667781', title=None)
+              margin=dict(l=0, r=0, t=10, b=0), height=400, bargap=0.45,
+              xaxis=dict(showgrid=False, color='#667781'),
+              yaxis=dict(showgrid=False, color='#667781')
             )
             st.plotly_chart(fig_hour_bar, use_container_width=True, config={'displayModeBar': False})
         
@@ -1490,13 +1488,16 @@ elif 'Activity Heatmap' in menu_selection:
 """, unsafe_allow_html=True)
 
    
-    active_hour = helper.most_active_hour(st.session_state.df,st.session_state.selected_user) if st.session_state.analysis_generated and st.session_state.df is not None else ("N/A")
     # ==========================================
     # ROW 1: DUAL SIDE-BY-SIDE GRAPH BAR PROFILES
     # ==========================================
     graph_col1, graph_col2 = st.columns(2)
 
+
+
     with graph_col1:
+        active_hour = helper.most_active_hour(st.session_state.df,st.session_state.selected_user) if st.session_state.analysis_generated and st.session_state.df is not None else ("N/A")
+
         st.markdown(f"""
     <div class="chart-card" style="background: #FFFFFF; padding: 10px; border-radius: 18px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015); margin-bottom: 16px;">
         <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px;">
@@ -1531,6 +1532,8 @@ elif 'Activity Heatmap' in menu_selection:
     active_day = helper.most_active_day(st.session_state.df,st.session_state.selected_user) if st.session_state.analysis_generated and st.session_state.df is not None else ("N/A")
 
     with graph_col2:
+        active_hour = helper.most_active_hour(st.session_state.df,st.session_state.selected_user) if st.session_state.analysis_generated and st.session_state.df is not None else ("N/A")
+
         st.markdown(f"""
     <div class="chart-card" style="background: #FFFFFF; padding: 10px; border-radius: 18px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015); margin-bottom: 16px;">
         <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px;">
