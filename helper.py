@@ -480,6 +480,31 @@ def hour_activity(df,selected_user):
 
     return hour_act
 
+def most_active_hour(df,selected_user):
+    if selected_user != 'Overall':
+        df = df[df['user'] == selected_user]
+
+    df_hour = hour_activity(df,selected_user)
+
+    hour = int(df_hour.sort_values('messages',ascending=False).iloc[0]['hour'])
+    if hour == 0:
+        return "12 am"
+    elif hour < 12:
+        return f"{hour} am"
+    elif hour == 12:
+        return "12 pm"
+    else:
+        return f"{hour - 12} pm"
+
+def most_active_day(df,selected_user):
+    if selected_user != 'Overall':
+        df = df[df['user'] == selected_user]
+
+    df_day = day_activity(df,selected_user)
+    day = df_day.sort_values('messages',ascending=False).iloc[0]['day_name']
+    
+    return day
+
 def user_trend(df,selected_user):
     if selected_user != 'Overall':
         df = df[df['user'] == selected_user]

@@ -12,6 +12,10 @@ import datetime
 
 import streamlit as st
 
+text_color = st.get_option("theme.textColor")
+background = st.get_option("theme.backgroundColor")
+secondary_bg = st.get_option("theme.secondaryBackgroundColor")
+
 # 1. Page Configuration & Bootstrap Icons CDN
 st.set_page_config(
     page_title="WhatsApp Chat Analyzer",
@@ -410,12 +414,21 @@ if "Dashboard" in menu_selection:
         if st.session_state.analysis_generated and st.session_state.df is not None:
             
             monthly_timeline = helper.monthly_year_timeline(st.session_state.df, st.session_state.selected_user)
-            fig,ax = plt.subplots()
+            
+            fig_hour = px.area(monthly_timeline, x='time', y='messages', labels={"time":"Date","messages":"Number of Messages"})
+            fig_hour.update_traces(line=dict(color="#1A8930", width=2), fillcolor='rgba(26, 137, 48, 0.3)')
+            fig_hour.update_layout(margin=dict(l=0, r=0, t=5, b=0), height=400,
+                               xaxis=dict(showgrid=False, color='#667781'), yaxis=dict(showgrid=False, color='#667781'))
+            st.plotly_chart(fig_hour, use_container_width=True, config={'displayModeBar': False})
+            
+            fig,ax = plt.subplots(figsize=(10,10))
             ax.plot(monthly_timeline['time'], monthly_timeline['messages'],color='green')
             plt.xlabel('Date')
             plt.ylabel('Number of Messages')
             plt.xticks(rotation='vertical')
             st.pyplot(fig)
+   
+            
 
             # fig = px.line(monthly_timeline, x='time', y='messages',labels={'time': 'Date', 'messages': 'Number of Messages'}, color_discrete_sequence=['#25D366'])
             # st.plotly_chart(fig, use_container_width=True)
@@ -428,7 +441,15 @@ if "Dashboard" in menu_selection:
         st.markdown('<div class="chart-card"><div class="chart-card-title"><i class="bi bi-bar-chart-fill" style="color:#25D366;"></i> Daily Timeline</div>', unsafe_allow_html=True)
         if st.session_state.analysis_generated and st.session_state.df is not None:
             daily_timeline = helper.daily_year_timeline(st.session_state.df, st.session_state.selected_user)
-            fig,ax = plt.subplots()
+            
+            fig_hour = px.area(daily_timeline, x='only_date', y='messages',labels={"only_date":"Date","messages":"Number of Messages"})
+            fig_hour.update_traces(line=dict(color="#C90338", width=2), fillcolor='rgba(201, 3, 56, 1)')
+            fig_hour.update_layout(margin=dict(l=0, r=0, t=5, b=0), height=400,
+                               xaxis=dict(showgrid=False, color='#667781'), yaxis=dict(showgrid=False, color='#667781'))
+            
+            st.plotly_chart(fig_hour, use_container_width=True, config={'displayModeBar': False})
+            
+            fig,ax = plt.subplots(figsize=(10,10.6))
             ax.plot(daily_timeline['only_date'], daily_timeline['messages'],color='red')
             plt.xlabel('Date')
             plt.ylabel('Number of Messages')
@@ -454,14 +475,14 @@ if "Dashboard" in menu_selection:
         fig = px.bar(top_users, x="user", y="message_count", color="user", text="message_count", labels={"user": "User", "message_count": "Messages Sent"}, color_discrete_sequence=px.colors.qualitative.Set3)
         
         fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
             margin=dict(l=20, r=20, t=60, b=20),
             height=400,
-            showlegend=True,
-            xaxis=dict(type='category',showgrid=False, color='#667781'),
-            yaxis=dict(showgrid=True, gridcolor='#E9EDEF', color='#667781')
-        )
+            xaxis=dict(type='category',showgrid=False,color=text_color),
+            yaxis=dict(showgrid=False,gridcolor=secondary_bg,color=text_color),
+            font=dict(color=text_color),
+            showlegend=True
+            )
+        
         st.plotly_chart(fig, use_container_width=True)
         
     else:
@@ -477,12 +498,11 @@ if "Dashboard" in menu_selection:
 
     with row_activity_col1:
         st.markdown("""
-    <div class="chart-card" style="background: #FFFFFF; padding: 24px; border-radius: 16px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015); margin-bottom: 24px;">
-        <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px;">
+    <div class="chart-card" style="background: #FFFFFF; padding: 10px; border-radius: 16px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015); margin-bottom: 24px;">
+        <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 5px;">
             <i class="bi bi-calendar3" style="color: #25D366; font-size: 32px; margin-top: 4px;"></i>
             <div>
                 <h3 style="margin: 0; font-size: 24px; font-weight: 700; color: #111B21;">Monthly Activity</h3>
-                <p style="margin: 4px 0 0 0; color: #667781; font-size: 14px;">Message volume trend tracked across months</p>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -508,12 +528,13 @@ if "Dashboard" in menu_selection:
                     ))
             
                     fig_weekly.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
+                    
                     margin=dict(l=0, r=0, t=10, b=0),
-                    height=260,
-                    xaxis=dict(showgrid=False, color='#667781'),
-                    yaxis=dict(showgrid=True, gridcolor='#E9EDEF', color='#667781'),
+                    height=350,
+                    xaxis=dict(showgrid=False,color=text_color),
+                    yaxis=dict(showgrid=False,gridcolor=secondary_bg,color=text_color),
+                    font=dict(color=text_color),
+                    showlegend=False,
                     bargap=0.3
                     )
             
@@ -535,12 +556,11 @@ if "Dashboard" in menu_selection:
 # =====================================================================
     with row_activity_col2:
             st.markdown("""
-                 <div class="chart-card" style="background: #FFFFFF; padding: 24px; border-radius: 16px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015); margin-bottom: 24px;">
-        <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px;">
+                 <div class="chart-card" style="background: #FFFFFF; padding: 10px; border-radius: 16px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.015); margin-bottom: 24px;">
+        <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 5px;">
             <i class="bi bi-calendar-week" style="color: #25D366; font-size: 32px; margin-top: 4px;"></i>
             <div>
                 <h3 style="margin: 0; font-size: 24px; font-weight: 700; color: #111B21;">Weekly Activity</h3>
-                <p style="margin: 4px 0 0 0; color: #667781; font-size: 14px;">Distribution of chat interactions by day of week</p>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -566,12 +586,10 @@ if "Dashboard" in menu_selection:
                     ))
             
                     fig_weekly.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
                     margin=dict(l=0, r=0, t=10, b=0),
-                    height=260,
+                    height=350,
                     xaxis=dict(showgrid=False, color='#667781'),
-                    yaxis=dict(showgrid=True, gridcolor='#E9EDEF', color='#667781'),
+                    yaxis=dict(showgrid=False, color='#667781'),
                     bargap=0.3
               )
             
@@ -663,13 +681,11 @@ elif 'Users' in menu_selection:
              
              fig.update_traces(mode='lines+markers', line=dict(width=1.5), marker=dict(size=4))
              fig.update_layout(
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
                     margin=dict(l=20, r=20, t=60, b=20),
                     height=400,
                     showlegend=False,
                     xaxis=dict(showgrid=False, color='#667781'),
-                    yaxis=dict(showgrid=True, gridcolor='#E9EDEF', color='#667781')
+                    yaxis=dict(showgrid=False, color='#667781')
                 )
              
              st.plotly_chart(fig, use_container_width=True)
@@ -697,7 +713,7 @@ elif 'Users' in menu_selection:
                 user_contribution,
                 names="user",
                 values="message_count",
-                hole=0.45,                  # Makes it a donut chart
+                hole=0.30,                  # Makes it a donut chart
                 color_discrete_sequence=px.colors.qualitative.Set3
             )
 
@@ -708,13 +724,11 @@ elif 'Users' in menu_selection:
                 )
 
             fig.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)',
-            plot_bgcolor='rgba(0,0,0,0)',
             margin=dict(l=20, r=20, t=60, b=20),
             height=400,
             showlegend=False,
             xaxis=dict(showgrid=False, color='#667781'),
-            yaxis=dict(showgrid=True, gridcolor='#E9EDEF', color='#667781')
+            yaxis=dict(showgrid=False, color='#667781')
              ) 
 
             st.plotly_chart(fig, use_container_width=True)
@@ -733,8 +747,7 @@ elif 'Users' in menu_selection:
         <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 5px;">
             <i class="bi bi-trophy-fill" style="color: #25D366; font-size: 28px; margin-top: 2px;"></i>
             <div>
-                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111B21;">User Ranking</h3>
-                <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">Top contributors ranked</p>
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111B21;">User Ranking(Top-5)</h3>
             </div>
         </div>
     </div>""", unsafe_allow_html=True)
@@ -747,13 +760,12 @@ elif 'Users' in menu_selection:
             fig = px.bar(top_users, x="message_count", y="user",orientation='h', color="user", text="message_count", labels={"user": "User", "message_count": "Messages Sent"},color_discrete_sequence=["#25D366", "#128C7E", "#075E54", "#34B7F1", "#25D366"])
 
             fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
+       
         margin=dict(l=10, r=10, t=10, b=10),
-        height=260,
-        showlegend=False,
-        xaxis=dict(showgrid=True, gridcolor='#E9EDEF', color='#667781'),
-        yaxis=dict(type='category', showgrid=False, color='#111B21') # Forces distinct y-axis categories
+        height=300,
+        xaxis=dict(showgrid=True, color='#667781'),
+        yaxis=dict(type='category', showgrid=False, color='#111B21') ,# Forces distinct y-axis categories
+        showlegend=True
     )
 
             st.plotly_chart(fig, use_container_width=True,config={'displayModeBar': False})
@@ -771,8 +783,7 @@ elif 'Users' in menu_selection:
     <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 5px;">
         <i class="bi bi-table" style="color: #25D366; font-size: 28px; margin-top: 2px;"></i>
         <div>
-            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111B21;">User Statistics</h3>
-            <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">Tabular performance dataset metrics log sheets</p>
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111B21;">User Statistics (Sheet)</h3>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -899,8 +910,12 @@ elif 'Messages' in menu_selection:
         if st.session_state.analysis_generated and st.session_state.df is not None:
              df_wc = helper.create_wordcloud(st.session_state.df,st.session_state.selected_user)
              fig,ax = plt.subplots()
-             ax.imshow(df_wc)
-             st.pyplot(fig)
+             fig.patch.set_facecolor('none')
+             ax.set_facecolor('none')
+             ax.imshow(df_wc, interpolation='bilinear')
+             ax.axis("off")
+             plt.tight_layout(pad=0)
+             st.pyplot(fig, clear_figure=True, use_container_width=True)
         else:
             st.markdown('<div class="chart-placeholder-content" style="height:250px; background: #FAFAFA; border: 1px dashed #E9EDEF; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #8696A0; font-style: italic;">Awaiting file upload...</div>', unsafe_allow_html=True)
         
@@ -920,7 +935,6 @@ elif 'Messages' in menu_selection:
             <i class="bi bi-filter-square-fill" style="color: #25D366; font-size: 28px; margin-top: 2px;"></i>
             <div>
                 <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111B21;">Most Common Words</h3>
-                <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">High frequency single keyword terms</p>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -928,9 +942,11 @@ elif 'Messages' in menu_selection:
         if st.session_state.analysis_generated and st.session_state.df is not None:
             most_common_df = helper.most_common_words(st.session_state.df,st.session_state.selected_user)
 
-            fig,ax = plt.subplots()
+            fig,ax = plt.subplots(figsize=(10,10))
             ax.barh(most_common_df[0],most_common_df[1])
-            plt.xticks(rotation='vertical')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+
             st.pyplot(fig)
         else:
             st.markdown('<div class="chart-placeholder-content" style="height:250px; background: #FAFAFA; border: 1px dashed #E9EDEF; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #8696A0; font-style: italic;">Awaiting file upload...</div>', unsafe_allow_html=True)
@@ -945,7 +961,6 @@ elif 'Messages' in menu_selection:
             <i class="bi bi-chat-left-quote" style="color: #25D366; font-size: 28px; margin-top: 2px;"></i>
             <div>
                 <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111B21;">Most Used Phrases</h3>
-                <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">N-gram patterns or recurrent idioms ranked</p>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -973,25 +988,22 @@ elif 'Messages' in menu_selection:
                 mode='markers+text',
                 marker=dict(
                     color="#0EF1F1",       # Core WhatsApp Green
-                    size=14,               # Prominent lollipop diameter
+                    size=15,               # Prominent lollipop diameter
                     line=dict(color='#128C7E', width=2) # Distinct darker rim
                 ),
                 text=phrases_df['Frequency'],
                 textposition="top right",
-                textfont=dict(size=11, color="#667781"),
+                textfont=dict(size=13, color="#667781"),
                 hoverinfo='text+y'
             ))
 
             # 3. Clean Layout Tuning for the SaaS UI Look
             fig.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
                 margin=dict(l=10, r=40, t=10, b=10),
-                height=280,
+                height=500,
                 showlegend=False,
                 xaxis=dict(
                     showgrid=True, 
-                    gridcolor='#F0F2F5', 
                     color='#667781',
                     zeroline=True,
                     zerolinecolor='#E9EDEF'
@@ -1074,8 +1086,7 @@ elif 'Emoji Analysis' in menu_selection:
             <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 14px; margin-bottom: 5px;">
                 <i class="bi bi-pie-chart-fill" style="color: #25D366; font-size: 30px; margin-top: 2px;"></i>
                 <div>
-                    <h3 style="margin: 0; font-size: 1.3rem; font-weight: 700; color: #111B21;">Emoji Distribution</h3>
-                    <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">Contribution of Top 5 Emojis</p>
+                    <h3 style="margin: 0; font-size: 1.3rem; font-weight: 700; color: #111B21;">Emoji Distribution(Top-5)</h3>
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -1085,12 +1096,11 @@ elif 'Emoji Analysis' in menu_selection:
             mock_pie = emojis_df.copy().head()
             
             fig_donut = px.pie(
-                mock_pie, values='Count', names='Emoji', hole=0.1,
+                mock_pie, values='Count', names='Emoji', hole=0.6,
                 color_discrete_sequence=px.colors.qualitative.Pastel
             )
             fig_donut.update_traces(textinfo='percent+label', marker=dict(line=dict(color='#FFFFFF', width=2)))
             fig_donut.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
                 margin=dict(l=10, r=10, t=10, b=10), height=500, showlegend=False
             )
             st.plotly_chart(fig_donut, use_container_width=True, config={'displayModeBar': False})
@@ -1106,8 +1116,7 @@ elif 'Emoji Analysis' in menu_selection:
             <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 14px; margin-bottom: 5px;">
                 <i class="bi bi-bar-chart-steps" style="color: #25D366; font-size: 30px; margin-top: 2px;"></i>
                 <div>
-                    <h3 style="margin: 0; font-size: 1.3rem; font-weight: 700; color: #111B21;">Top Emojis</h3>
-                    <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">Top 10 most used emojis</p>
+                    <h3 style="margin: 0; font-size: 1.3rem; font-weight: 700; color: #111B21;">Top Emojis(Top-10)</h3>
                 </div>
             </div>
         """, unsafe_allow_html=True)
@@ -1122,9 +1131,8 @@ elif 'Emoji Analysis' in menu_selection:
                 color='Count', color_continuous_scale=px.colors.sequential.Bluered_r
             )
             fig_bar.update_layout(
-                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
                 margin=dict(l=10, r=10, t=10, b=10), height=500, coloraxis_showscale=False,
-                xaxis=dict(showgrid=True, gridcolor='#F0F2F5', color='#667781'),
+                xaxis=dict(showgrid=True, color='#667781'),
                 yaxis=dict(type='category', color='#111B21')
             )
             st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False})
@@ -1143,7 +1151,6 @@ elif 'Emoji Analysis' in menu_selection:
             <i class="bi bi-clipboard-data-fill" style="color: #25D366; font-size: 30px; margin-top: 2px;"></i>
             <div>
                 <h3 style="margin: 0; font-size: 1.3rem; font-weight: 700; color: #111B21;">Emoji Statistics</h3>
-                <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">Detailed emoji usage summary for every participant</p>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -1251,7 +1258,7 @@ elif 'Timeline' in menu_selection:
         <i class="bi bi-activity" style="color: #25D366; font-size: 28px; margin-top: 2px;"></i>
         <div>
             <h3 style="margin: 0; font-size: 1.50rem; font-weight: 700; color: #111B21;">Dynamic Chronological Stream ({timeline_type} View)</h3>
-            <p style="margin: 2px 0 0 0; color: #667781; font-size: 20px;">Real-time timeline analysis scaled to the selected configuration metrics frame</p>
+            <p style="margin: 2px 0 0 0; color: #667781; font-size: 20px;">Real-time timeline analysis</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -1280,10 +1287,9 @@ elif 'Timeline' in menu_selection:
             fig_main.update_traces(marker_color="#A2F705", opacity=0.9, marker_line=dict(width=0))
 
         fig_main.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
         margin=dict(l=10, r=10, t=10, b=10), height=500,
         xaxis=dict(showgrid=False, color='#667781'),
-        yaxis=dict(showgrid=True, gridcolor='#F0F2F5', color='#667781')
+        yaxis=dict(showgrid=False, color='#667781')
         )
         st.plotly_chart(fig_main, use_container_width=True, config={'displayModeBar': False})
 
@@ -1313,8 +1319,9 @@ elif 'Timeline' in menu_selection:
             df_day = helper.day_activity(st.session_state.df,st.session_state.selected_user)
             fig_day = px.bar(df_day, x='day_name', y='messages')
             fig_day.update_traces(marker_color="#09E6CC")
-            fig_day.update_layout( bargap=0.45,paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', margin=dict(l=0, r=0, t=5, b=0), height=400,
-                              xaxis=dict(showgrid=True, color="#E9EDEF"), yaxis=dict(showgrid=True, gridcolor='#F0F2F5', color="#F9FBFC"))
+            fig_day.update_layout( bargap=0.45, margin=dict(l=0, r=0, t=5, b=0), height=400,
+                              xaxis=dict(showgrid=False, color="#E9EDEF"), 
+                              yaxis=dict(showgrid=True, color="#F9FBFC"))
             st.plotly_chart(fig_day, use_container_width=True, config={'displayModeBar': False})
         else:
             st.markdown('<div class="chart-placeholder-content" style="height:250px; background: #FAFAFA; border: 1px dashed #E9EDEF; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #8696A0; font-style: italic;">Awaiting file upload...</div>', unsafe_allow_html=True)
@@ -1334,13 +1341,21 @@ elif 'Timeline' in menu_selection:
         
         if st.session_state.analysis_generated and st.session_state.df is not None:
 
-            df_hour = helper.hour_activity(st.session_state.df,st.session_state.selected_user)
+            df_hour = helper.hour_activity(st.session_state.df,st.session_state.selected_user)            
+            fig_hour_bar = px.bar(df_hour, x='hour', y='messages')
+            fig_hour_bar.update_traces(
+              marker_color="#B7FC08", 
+              marker_line_width=0,
+              hovertemplate="<b>%{x}</b><br>Messages: %{y}<extra></extra>"
+            )
+            fig_hour_bar.update_layout(
+              margin=dict(l=0, r=0, t=10, b=0), height=400, bargap=0.4,
+              xaxis=dict(showgrid=False, color='#667781', title=None),
+              yaxis=dict(showgrid=False, color='#667781', title=None)
+            )
+            st.plotly_chart(fig_hour_bar, use_container_width=True, config={'displayModeBar': False})
         
-            fig_hour = px.area(df_hour, x='hour', y='messages')
-            fig_hour.update_traces(line=dict(color='#34B7F1', width=2), fillcolor='rgba(52, 183, 241, 0.15)')
-            fig_hour.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', margin=dict(l=0, r=0, t=5, b=0), height=400,
-                               xaxis=dict(showgrid=True, color='#667781'), yaxis=dict(showgrid=True, gridcolor='#F0F2F5', color='#667781'))
-            st.plotly_chart(fig_hour, use_container_width=True, config={'displayModeBar': False})
+           
         else:
             st.markdown('<div class="chart-placeholder-content" style="height:250px; background: #FAFAFA; border: 1px dashed #E9EDEF; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #8696A0; font-style: italic;">Awaiting file upload...</div>', unsafe_allow_html=True)
 
@@ -1475,26 +1490,27 @@ elif 'Activity Heatmap' in menu_selection:
 """, unsafe_allow_html=True)
 
    
-
+    active_hour = helper.most_active_hour(st.session_state.df,st.session_state.selected_user) if st.session_state.analysis_generated and st.session_state.df is not None else ("N/A")
     # ==========================================
     # ROW 1: DUAL SIDE-BY-SIDE GRAPH BAR PROFILES
     # ==========================================
     graph_col1, graph_col2 = st.columns(2)
 
     with graph_col1:
-        st.markdown("""
+        st.markdown(f"""
     <div class="chart-card" style="background: #FFFFFF; padding: 10px; border-radius: 18px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015); margin-bottom: 16px;">
         <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px;">
             <i class="bi bi-clock-fill" style="color: #128C7E; font-size: 24px;"></i>
             <div>
                 <h4 style="margin: 0; font-size: 1.50rem; font-weight: 700; color: #111B21;">Most Active Hour</h4>
+                <span class="kpi-value" style="font-size: 2.2rem; font-weight: 800; color: #111B21; line-height: 1.1;">{active_hour}</span>
             </div>
         </div>
     """, unsafe_allow_html=True)
         if st.session_state.analysis_generated and st.session_state.df is not None:
     # Mock data for hours surrounding peak times (e.g., afternoon to night)
             df_active_hours = helper.hour_activity(st.session_state.df,st.session_state.selected_user)
-    
+            
             fig_hour_bar = px.bar(df_active_hours, x='hour', y='messages')
             fig_hour_bar.update_traces(
               marker_color="#8C1282", 
@@ -1502,10 +1518,9 @@ elif 'Activity Heatmap' in menu_selection:
               hovertemplate="<b>%{x}</b><br>Messages: %{y}<extra></extra>"
             )
             fig_hour_bar.update_layout(
-              paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
               margin=dict(l=0, r=0, t=10, b=0), height=400, bargap=0.4,
               xaxis=dict(showgrid=False, color='#667781', title=None),
-              yaxis=dict(showgrid=True, gridcolor='#F0F2F5', color='#667781', title=None)
+              yaxis=dict(showgrid=False, color='#667781', title=None)
             )
             st.plotly_chart(fig_hour_bar, use_container_width=True, config={'displayModeBar': False})
         else:
@@ -1513,13 +1528,16 @@ elif 'Activity Heatmap' in menu_selection:
 
         st.markdown("</div>", unsafe_allow_html=True)
 
+    active_day = helper.most_active_day(st.session_state.df,st.session_state.selected_user) if st.session_state.analysis_generated and st.session_state.df is not None else ("N/A")
+
     with graph_col2:
-        st.markdown("""
+        st.markdown(f"""
     <div class="chart-card" style="background: #FFFFFF; padding: 10px; border-radius: 18px; border: 1px solid rgba(0, 0, 0, 0.02); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015); margin-bottom: 16px;">
         <div class="chart-card-title" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px;">
             <i class="bi bi-calendar-heart-fill" style="color: #25D366; font-size: 24px;"></i>
             <div>
                 <h4 style="margin: 0; font-size: 1.50rem; font-weight: 700; color: #111B21;">Most Active Day</h4>
+                <span class="kpi-value" style="font-size: 2.2rem; font-weight: 800; color: #111B21; line-height: 1.1;">{active_day}</span>
             </div>
         </div>
     """, unsafe_allow_html=True)
@@ -1535,10 +1553,9 @@ elif 'Activity Heatmap' in menu_selection:
             hovertemplate="<b>%{x}</b><br>Messages: %{y}<extra></extra>"
             )
             fig_day_bar.update_layout(
-            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
             margin=dict(l=0, r=0, t=10, b=0), height=400, bargap=0.45,
             xaxis=dict(showgrid=False, color='#667781', title=None),
-            yaxis=dict(showgrid=True, gridcolor='#F0F2F5', color='#667781', title=None)
+            yaxis=dict(showgrid=False, color='#667781', title=None)
             )
             st.plotly_chart(fig_day_bar, use_container_width=True, config={'displayModeBar': False})
         else:
@@ -1757,7 +1774,6 @@ elif 'Word Cloud' in menu_selection:
         <i class="bi bi-clipboard2-data-fill" style="color: #25D366; font-size: 28px; margin-top: 2px;"></i>
         <div>
             <h3 style="margin: 0; font-size: 1.50rem; font-weight: 700; color: #111B21;">Word Frequency Statistics</h3>
-            <p style="margin: 2px 0 0 0; color: #667781; font-size: 13px;">Detailed frequency analysis of the most common words.</p>
         </div>
     </div>
 """, unsafe_allow_html=True)
