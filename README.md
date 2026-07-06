@@ -84,7 +84,7 @@ Whether you want to understand chat activity, user engagement, emoji usage, time
 
 | Dashboard | User Analysis |
 |------------|---------------|
-| ![](screenshots/Dashboard.jpeg) | ![](UserAnalyzer1/users.jpeg) |
+| ![](screenshots/Dashboard.jpeg) | ![](UserAnalyzer1/UserAnalyzer1.jpeg) |
 
 | Word Cloud | Emoji Analysis |
 |------------|----------------|
